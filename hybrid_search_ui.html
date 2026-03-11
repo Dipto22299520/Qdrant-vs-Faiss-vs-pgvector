@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Search - Compare All 3 APIs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #000000 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0432ff 0%, #000000 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="number"], input[type="range"] {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="range"] {
+            padding: 0;
+        }
+
+        .weight-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .btn-search {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-search:active {
+            transform: translateY(0);
+        }
+
+        .btn-search:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            padding: 30px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .api-result {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .api-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .api-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .api-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-qdrant {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-faiss {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-pgvector {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .api-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-top: 3px;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .source-file {
+            font-size: 12px;
+            color: #666;
+            background: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+
+        .scores {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .score {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .score-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .score-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 2px;
+        }
+
+        .result-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #c62828;
+        }
+
+        .json-toggle {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            transition: background 0.2s;
+        }
+
+        .json-toggle:hover {
+            background: #e0e0e0;
+        }
+
+        .json-view {
+            margin-top: 10px;
+            padding: 15px;
+            background: #282c34;
+            color: #abb2bf;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 400px;
+            display: none;
+        }
+
+        .json-view.show {
+            display: block;
+        }
+
+        .example-queries {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .example-queries h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .example-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1400px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Hybrid Search Comparison</h1>
+            <p>Compare Semantic + Keyword (BM25) search across 3 backends</p>
+        </div>
+
+        <div class="search-section">
+            <div class="form-group">
+                <label>Search Query:</label>
+                <textarea id="query" placeholder="Enter your search query here...">But I am over tedious in these toys circumforanean rogues</textarea>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Top K Results:</label>
+                    <input type="number" id="topK" value="3" min="1" max="10">
+                </div>
+
+                <div class="control-group">
+                    <label>Semantic Weight: <span id="semanticValue">0.7</span></label>
+                    <input type="range" id="semanticWeight" min="0" max="1" step="0.1" value="0.7">
+                </div>
+
+                <div class="control-group">
+                    <label>Keyword Weight: <span id="keywordValue">0.3</span></label>
+                    <input type="range" id="keywordWeight" min="0" max="1" step="0.1" value="0.3">
+                </div>
+            </div>
+
+            <button class="btn-search" id="searchBtn">🚀 Search All 3 APIs</button>
+
+            <div class="example-queries">
+                <h4>📝 Example Queries:</h4>
+                <button class="example-btn" onclick="setQuery('But I am over tedious in these toys circumforanean rogues')">Anatomy of Melancholy</button>
+                <button class="example-btn" onclick="setQuery('Is that of the prince her husband an independent rajah of Bundelcund')">Around the World in 80 Days</button>
+                <button class="example-btn" onclick="setQuery('dull thump on the ground couple had fallen')">Tess of the d\'Urbervilles</button>
+                <button class="example-btn" onclick="setQuery('to be or not to be that is the question')">Hamlet</button>
+                <button class="example-btn" onclick="setQuery('In the beginning God created the heaven and the earth')">Bible</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const APIs = [
+            { name: 'Qdrant', port: 8081, badge: 'badge-qdrant', backend: 'qdrant-hybrid' },
+            { name: 'FAISS + pgvector', port: 8082, badge: 'badge-faiss', backend: 'pgvector+faiss-hybrid' },
+            { name: 'pgvector Only', port: 8083, badge: 'badge-pgvector', backend: 'pgvector-hybrid' }
+        ];
+
+        // Update weight displays
+        document.getElementById('semanticWeight').addEventListener('input', (e) => {
+            document.getElementById('semanticValue').textContent = e.target.value;
+        });
+
+        document.getElementById('keywordWeight').addEventListener('input', (e) => {
+            document.getElementById('keywordValue').textContent = e.target.value;
+        });
+
+        // Set example query
+        function setQuery(query) {
+            document.getElementById('query').value = query;
+        }
+
+        // Search all APIs
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            const query = document.getElementById('query').value.trim();
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            const topK = parseInt(document.getElementById('topK').value);
+            const semanticWeight = parseFloat(document.getElementById('semanticWeight').value);
+            const keywordWeight = parseFloat(document.getElementById('keywordWeight').value);
+
+            const searchBtn = document.getElementById('searchBtn');
+            searchBtn.disabled = true;
+            searchBtn.textContent = '⏳ Searching...';
+
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Querying all 3 APIs...</p></div>';
+
+            try {
+                // Query all APIs in parallel
+                const promises = APIs.map(api => 
+                    searchAPI(api, query, topK, semanticWeight, keywordWeight)
+                );
+
+                const results = await Promise.all(promises);
+
+                // Display results
+                displayResults(results);
+            } catch (error) {
+                resultsContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🚀 Search All 3 APIs';
+            }
+        });
+
+        // Search single API
+        async function searchAPI(api, query, topK, semanticWeight, keywordWeight) {
+            const url = `http://localhost:${api.port}/hybrid_search`;
+            const body = {
+                query,
+                top_k: topK,
+                semantic_weight: semanticWeight,
+                keyword_weight: keywordWeight
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+
+                const data = await response.json();
+                return { api, data, error: null };
+            } catch (error) {
+                return { api, data: null, error: error.message };
+            }
+        }
+
+        // Display results
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            const html = `
+                <div class="results-grid">
+                    ${results.map(result => renderAPIResult(result)).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // Render single API result
+        function renderAPIResult({ api, data, error }) {
+            if (error) {
+                return `
+                    <div class="api-result">
+                        <div class="api-header">
+                            <div class="api-name">${api.name}</div>
+                            <span class="api-badge ${api.badge}">Port ${api.port}</span>
+                        </div>
+                        <div class="error">❌ Error: ${error}</div>
+                    </div>
+                `;
+            }
+
+            const jsonId = `json-${api.port}`;
+
+            return `
+                <div class="api-result">
+                    <div class="api-header">
+                        <div class="api-name">${api.name}</div>
+                        <span class="api-badge ${api.badge}">Port ${api.port}</span>
+                    </div>
+
+                    <div class="api-stats">
+                        <div class="stat">
+                            <div class="stat-label">Total Time</div>
+                            <div class="stat-value">${data.total_ms}ms</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Search Time</div>
+                            <div class="stat-value">${data.search_ms}ms</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Results</div>
+                            <div class="stat-value">${data.results.length}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Backend</div>
+                            <div class="stat-value" style="font-size: 12px;">${data.backend}</div>
+                        </div>
+                    </div>
+
+                    ${data.results.map(result => renderResultItem(result)).join('')}
+
+                    <button class="json-toggle" onclick="toggleJSON('${jsonId}')">
+                        📄 Show Full JSON Response
+                    </button>
+                    <pre class="json-view" id="${jsonId}">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // Render result item
+        function renderResultItem(result) {
+            return `
+                <div class="result-item">
+                    <div class="result-header">
+                        <div class="rank-badge">${result.rank}</div>
+                        <div class="book-title">${result.book_title || 'Unknown'}</div>
+                        <div class="source-file">${result.source_file}</div>
+                    </div>
+
+                    <div class="scores">
+                        <div class="score">
+                            <div class="score-label">Hybrid</div>
+                            <div class="score-value">${result.hybrid_score.toFixed(3)}</div>
+                        </div>
+                        <div class="score">
+                            <div class="score-label">Semantic</div>
+                            <div class="score-value">${result.semantic_score.toFixed(3)}</div>
+                        </div>
+                        <div class="score">
+                            <div class="score-label">Keyword</div>
+                            <div class="score-value">${result.keyword_score.toFixed(3)}</div>
+                        </div>
+                    </div>
+
+                    <div class="result-text">${result.text.substring(0, 300)}...</div>
+                </div>
+            `;
+        }
+
+        // Toggle JSON view
+        function toggleJSON(id) {
+            const element = document.getElementById(id);
+            element.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>
