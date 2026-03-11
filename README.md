@@ -648,15 +648,6 @@ Educational/Research Use
 
 ---
 
-## 📞 Support
-
-For questions or issues:
-1. Check `/docs` endpoint for API documentation
-2. Review `HYBRID_SEARCH_INTEGRATION.txt` for technical details
-3. Test with provided example queries
-
----
-
 ## 🎉 Summary
 
 **What makes it extraordinary:**
