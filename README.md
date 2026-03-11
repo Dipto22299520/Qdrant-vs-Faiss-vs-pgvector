@@ -243,11 +243,6 @@ Scalability: ✅ Handles millions of vectors
 - ✅ Three backend options to study
 - ✅ Complete codebase with documentation
 
-### For Your Boss
-- ✅ **Zero additional spending** (saved $4.91 from $8 budget)
-- ✅ Better accuracy than expensive alternatives
-- ✅ Production-ready in 70ms response time
-- ✅ Scales to millions of books
 
 ---
 
